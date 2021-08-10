@@ -30,7 +30,7 @@ describe('Auth testing', () => {
 		expect(response.body).to.have.property('token');
 	});
 
-	it('should NOT create new user and return token', async () => {
+	it('should get 403 because user already exists', async () => {
 		const user = new User('test', 'test');
 		await userService.createUser(user);
 		const response = await chai
