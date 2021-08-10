@@ -90,9 +90,7 @@ class UserService {
 
 		const passwordOk = await bcrypt.compare(u.password, user.password);
 
-		if (passwordOk) {
-			return true;
-		}
+		return passwordOk;
 	};
 
 	getAllUserIds = async () => {
