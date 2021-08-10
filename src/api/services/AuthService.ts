@@ -39,6 +39,12 @@ class AuthService {
 
 		const userId = await userService.createUser(user);
 
+		if (userId === null) {
+			response.status = 400;
+			response.body = { error: 'Invalid request body!' };
+			return response;
+		}
+
 		const token = await signToken({ userId });
 		response.status = 200;
 		response.body = { token };

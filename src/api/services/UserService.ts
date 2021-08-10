@@ -18,24 +18,30 @@ class UserService {
 		this.usersDir = pathToUsersDb;
 	}
 
-	getFilePath = (userId: string) => {
+	private getFilePath = (userId: string) => {
 		return `${this.usersDir}/${userId}.txt`;
 	};
 
-	saveUser = async (user: User) => {
+	private saveUser = async (user: User) => {
 		if (user.id === null) {
 			throw new Error('UserService.saveUser(): No id given!');
 		}
+		if (!user.isValid()) {
+			throw new Error('UserService.saveUser(): Invalid user!');
+		}
+
+		// maybe here should be independent check for space characters.
 		await writeFile(
 			this.getFilePath(user.id),
 			`${user.login} ${user.password}`
 		);
 	};
 
-	#obtainUser = (userId: string) => {
+	private obtainUser = (userId: string) => {
 		return readFile(this.getFilePath(userId), 'utf8');
 	};
 
+	// maybe createUserOrReturnNull
 	createUser = async (user: User) => {
 		const userId = uuidv4();
 		const hashedPassword = await bcrypt.hash(
@@ -43,14 +49,20 @@ class UserService {
 			parseInt(<string>process.env.SALT_ROUNDS)
 		);
 
-		await this.saveUser(new User(user.login, hashedPassword, userId));
+		const newUser = new User(user.login, hashedPassword, userId);
+
+		if (!user.isValid()) {
+			return null;
+		}
+
+		await this.saveUser(newUser);
 
 		return userId;
 	};
 
 	getUserById = async (userId: string) => {
 		try {
-			const data = await this.#obtainUser(userId);
+			const data = await this.obtainUser(userId);
 			const [login, hashedPassword] = data.split(' ');
 
 			return new User(login, hashedPassword);
@@ -67,6 +79,9 @@ class UserService {
 	isUserValid = async (u: User) => {
 		const user = await this.getUserByLogin(u.login);
 		if (user === null) {
+			return false;
+		}
+		if (!user.isValid()) {
 			return false;
 		}
 		if (user.login !== u.login) {

@@ -36,9 +36,21 @@ describe('Auth testing', () => {
 		const response = await chai
 			.request(server)
 			.post('/user/create')
-			.send({ login: 'test', password: 'test' });
+			.send({ login: user.login, password: user.password });
 
 		expect(response.status).to.be.equal(403);
+	});
+
+	it('should get 400 because of bad login', async () => {
+		const user = new User('tes t', 'test');
+		await userService.createUser(user);
+		const response = await chai
+			.request(server)
+			.post('/user/create')
+			.send({ login: user.login, password: user.password });
+
+		expect(response.status).to.be.equal(400);
+		expect(response.body).to.have.property('error');
 	});
 
 	it('should login successfully and return token', async () => {

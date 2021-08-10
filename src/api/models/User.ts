@@ -22,11 +22,19 @@ export class User {
 	}
 
 	isValid() {
-		return Boolean(this.login) && Boolean(this.password);
+		return (
+			Boolean(this.login) &&
+			User.isLoginValid(this.login) &&
+			Boolean(this.password)
+		);
 	}
 
 	static isValid(obj: any) {
 		return new User(obj.login, obj.password).isValid();
+	}
+
+	static isLoginValid(login: string) {
+		return login.includes(' ') === false;
 	}
 
 	static fromObject(obj: any) {
