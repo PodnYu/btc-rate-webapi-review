@@ -2,12 +2,9 @@ import bcrypt from 'bcrypt';
 import { v4 as uuidv4 } from 'uuid';
 import fs from 'fs';
 import path from 'path';
-import { promisify } from 'util';
+import { writeFile, readFile, readdir as readDir } from 'fs/promises';
 import { User } from '../models/User';
 
-const writeFile = promisify(fs.writeFile);
-const readFile = promisify(fs.readFile);
-const readDir = promisify(fs.readdir);
 const usersDir = path.join(__dirname, '/../../../db/users');
 
 class UserService {
